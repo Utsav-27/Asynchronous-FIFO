@@ -1,1 +1,24 @@
-
+module fifo_read_pointer_handler #(parameter size = 4)(
+    input rclk, rst,
+    input [size-1:0] g_wprt_sync,
+    output empty,
+    output reg  [size-1:0] b_rptr,
+    output [size-1:0]g_rptr
+);
+    always @(posedge rclk or negedge rst) begin
+        if(rst) begin
+            b_rptr <= 0;
+        end
+        else if(!empty) begin
+            b_rptr <= b_rptr + 1'b1;
+        end
+        else begin
+            b_rptr <= b_rptr;
+        end
+    end
+    assign g_rptr[3] = b_rptr[3];
+    assign g_rptr[2] = b_rptr[2] ^ g_rptr[3];
+    assign g_rptr[1] = b_rptr[1] ^ g_rptr[2];
+    assign g_rptr[0] = b_rptr[0] ^ g_rptr[1];
+    assign full = g_rptr[size-1:0] == g_wprt_sync[size-1:0];
+endmodule
