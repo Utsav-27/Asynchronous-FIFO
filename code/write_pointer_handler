@@ -1,1 +1,21 @@
-
+module fifo_write_pointer_handler #(parameter size = 4)(
+    input wclk, rst,
+    input [size-1:0] g_rprt_sync,
+    output full,
+    output reg  [size-1:0] b_wptr,
+    output [size-1:0]g_wptr
+);
+    always @(posedge wclk or negedge rst) begin
+        if(rst) begin
+            b_wptr <= 0;
+        end
+        else if(!full) begin
+            b_wptr <= b_wptr + 1'b1;
+        end
+    end
+    assign g_wptr[3] = b_wptr[3];
+    assign g_wptr[2] = b_wptr[2] ^ g_wptr[3];
+    assign g_wptr[1] = b_wptr[1] ^ g_wptr[2];
+    assign g_wptr[0] = b_wptr[0] ^ g_wptr[1];
+    assign full = (g_wptr[size-2:0] == g_rprt_sync[size-2:0]) && (g_wptr[size-1] != g_rprt_sync[size-1]);
+endmodule
