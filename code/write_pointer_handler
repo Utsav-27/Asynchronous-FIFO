@@ -1,21 +1,28 @@
-module fifo_write_pointer_handler #(parameter size = 4)(
-    input wclk, rst,
-    input [size-1:0] g_rprt_sync,
-    output full,
-    output reg  [size-1:0] b_wptr,
-    output [size-1:0]g_wptr
+module fifo_write_pointer_handler #(parameter Asize = 3)(
+    input wclk, wrst, wen,
+    input [Asize:0] g_rptr_sync,
+    output reg  [Asize-1:0] b_wptr_out,
+    output [Asize:0]g_wptr,
+    output reg full
 );
-    always @(posedge wclk or negedge rst) begin
-        if(rst) begin
+
+    reg [Asize:0] b_wptr;
+    wire [Asize:0] g_wptr_next, b_wptr_next;
+    wire full_next;
+    always @(posedge wclk or negedge wrst) begin
+        b_wptr_out <= b_wptr[Asize-1:0];
+
+        if(!wrst) begin
             b_wptr <= 0;
+            full <= 0;
         end
-        else if(!full) begin
-            b_wptr <= b_wptr + 1'b1;
+        else if(wen && !full) begin
+            b_wptr <= b_wptr_next;
+            full <= full_next;
         end
     end
-    assign g_wptr[3] = b_wptr[3];
-    assign g_wptr[2] = b_wptr[2] ^ g_wptr[3];
-    assign g_wptr[1] = b_wptr[1] ^ g_wptr[2];
-    assign g_wptr[0] = b_wptr[0] ^ g_wptr[1];
-    assign full = (g_wptr[size-2:0] == g_rprt_sync[size-2:0]) && (g_wptr[size-1] != g_rprt_sync[size-1]);
+    assign b_wptr_next = full_next ? b_wptr : b_wptr + 4'b0001;
+    assign g_wptr = (b_wptr>>1) ^ b_wptr;
+    assign g_wptr_next = (b_wptr_next>>1) ^ b_wptr_next;
+    assign full_next = (g_wptr_next[Asize-1:0] == g_rptr_sync[Asize-1:0]) && (g_wptr_next[Asize] != g_rptr_sync[Asize]);
 endmodule
