@@ -1,11 +1,11 @@
-module fifo_2_flop_sync #(parameter size = 4) (
-    input [size-1 : 0]data_in,
+module fifo_2_flop_sync #(parameter Asize = 3) (
+    input [Asize : 0]data_in,
     input clk,rst,
-    output wire [size-1 : 0] data_out
+    output wire [Asize : 0] data_out
 );
-    reg [size-1 : 0] ff1,ff2;
+    reg [Asize : 0] ff1,ff2;
     always @(posedge clk or negedge rst) begin
-        if(rst) begin
+        if(!rst) begin
             ff1 <= 0;
             ff2 <= 0;
         end
