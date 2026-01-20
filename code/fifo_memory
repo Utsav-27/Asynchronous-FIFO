@@ -9,13 +9,13 @@ module fifo_memory #(parameter Dsize = 8, parameter Asize = 3)(
     
     always @(posedge wclk) begin
         if (wen && !full) begin
-            mem[wadd] <= data_in;
+            mem[wadd[Asize-1 : 0]] <= data_in;
         end
     end
 
     always @(posedge rclk) begin
         if(ren && !empty) begin
-            data_out <= mem[radd];
+            data_out <= mem[radd[Asize-1 : 0]];
         end
     end
 endmodule
