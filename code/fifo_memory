@@ -1,21 +1,20 @@
-module fifo_memory #(parameter Dsize = 8, parameter Asize = 3)(
-    input wclk, rclk, wen, ren, full, empty,
+module fifo_memory #(parameter Dsize = 8, depth = 8, parameter Asize = 4)(
+    input wclk, rclk, wen_true, ren_true,
+    input [Asize-1 :0] wadd, radd,
     input [Dsize-1:0] data_in,
     output reg [Dsize-1:0] data_out
 );
-    reg [Asize :0] wadd, radd;
-    parameter depth = 1<<Asize;
     reg [Dsize-1:0] mem [0:depth-1];
-    
+        
     always @(posedge wclk) begin
-        if (wen && !full) begin
-            mem[wadd[Asize-1 : 0]] <= data_in;
+        if (wen_true) begin
+            mem[wadd] <= data_in;
         end
     end
 
     always @(posedge rclk) begin
-        if(ren && !empty) begin
-            data_out <= mem[radd[Asize-1 : 0]];
+        if(ren_true) begin
+            data_out <= mem[radd];
         end
     end
 endmodule
