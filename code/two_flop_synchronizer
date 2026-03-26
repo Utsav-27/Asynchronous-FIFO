@@ -1,18 +1,18 @@
-module fifo_2_flop_sync #(parameter Asize = 3) (
-    input [Asize : 0]data_in,
+module fifo_2_flop_sync #(parameter Asize = 4) (
     input clk,rst,
-    output wire [Asize : 0] data_out
+    input [Asize : 0]data_in,
+    output reg [Asize : 0] data_out
 );
-    reg [Asize : 0] ff1,ff2;
+    reg [Asize : 0] ff;
     always @(posedge clk or negedge rst) begin
         if(!rst) begin
-            ff1 <= 0;
-            ff2 <= 0;
+            ff <= 0;
+            data_out <= 0;
         end
         else begin
-            ff1 <= data_in;
-            ff2 <= ff1;
+            data_out <= ff;
+            ff <= data_in;
         end
     end
-    assign data_out = ff2;
+
 endmodule
