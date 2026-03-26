@@ -1,28 +1,31 @@
-module fifo_read_pointer_handler #(parameter Asize = 3)(
-    input rclk, rrst, ren,
-    input [Asize:0] g_wptr_sync,
-    output reg  [Asize-1:0] b_rptr_out,
-    output [Asize:0]g_rptr,
-    output reg empty
+module fifo_read_pointer_handler #(parameter Asize = 4)(
+    input   rclk, rrst, ren,
+    input       [Asize:0] g_wptr_sync,
+    output      [Asize:0] g_rptr,
+    output reg  [Asize-1:0] b_radd_out,
+    output reg  ren_mem
 );
-
     reg [Asize:0] b_rptr;
     wire [Asize:0] g_rptr_next, b_rptr_next;
-    wire empty_next;
+    wire empty_next, inc;
     always @(posedge rclk or negedge rrst) begin
-        b_rptr_out <= b_rptr[Asize-1:0];
-
         if(!rrst) begin
             b_rptr <= 0;
             empty <= 1;
+            b_radd_out <= 0;
+            g_wptr <= 0;
+            ren_mem <= 0;
         end
-        else if(ren && !empty) begin
-            b_rptr <= b_rptr + 1'b1;
+        else if(inc) begin
+            b_rptr <= b_rptr_next;
             empty <= empty_next;
+            b_radd_out <= b_rptr_next[Asize-1:0];
+            g_rptr <= g_rptr_next;
+            ren_mem <= ren && !empty_next;
         end
     end
-    assign b_rptr_next = empty_next ? b_rptr : b_rptr + 4'b0001;
-    assign g_rptr = (b_rptr>>1) ^ b_rptr;
+    assign inc = wen & !full;
+    assign b_rptr_next = b_rptr + inc;
     assign g_rptr_next = (b_rptr_next>>1) ^ b_rptr_next;
     assign empty_next = g_rptr[Asize:0] == g_wptr_sync[Asize:0];
 endmodule
