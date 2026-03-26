@@ -1,9 +1,9 @@
 module fifo_read_pointer_handler #(parameter Asize = 4)(
     input   rclk, rrst, ren,
     input       [Asize:0] g_wptr_sync,
-    output      [Asize:0] g_rptr,
+    output reg  [Asize:0] g_rptr,
     output reg  [Asize-1:0] b_radd_out,
-    output reg  ren_mem
+    output reg  ren_mem, empty
 );
     reg [Asize:0] b_rptr;
     wire [Asize:0] g_rptr_next, b_rptr_next;
@@ -13,7 +13,7 @@ module fifo_read_pointer_handler #(parameter Asize = 4)(
             b_rptr <= 0;
             empty <= 1;
             b_radd_out <= 0;
-            g_wptr <= 0;
+            g_rptr <= 0;
             ren_mem <= 0;
         end
         else if(inc) begin
@@ -24,7 +24,7 @@ module fifo_read_pointer_handler #(parameter Asize = 4)(
             ren_mem <= ren && !empty_next;
         end
     end
-    assign inc = wen & !full;
+    assign inc = ren & !empty;
     assign b_rptr_next = b_rptr + inc;
     assign g_rptr_next = (b_rptr_next>>1) ^ b_rptr_next;
     assign empty_next = g_rptr[Asize:0] == g_wptr_sync[Asize:0];
