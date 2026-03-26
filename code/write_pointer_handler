@@ -1,9 +1,9 @@
 module fifo_write_pointer_handler #(parameter Asize = 4)(
     input wclk, wrst, wen,
     input       [Asize:0] g_rptr_sync,
-    output      [Asize:0]g_wptr,
+    output reg  [Asize:0] g_wptr,
     output reg  [Asize-1:0] b_wadd_out,
-    output reg  wen_mem
+    output reg  wen_mem, full
 );
     reg [Asize:0] b_wptr;
     wire [Asize:0] g_wptr_next, b_wptr_next;
