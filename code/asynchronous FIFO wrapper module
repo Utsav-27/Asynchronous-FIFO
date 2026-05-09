@@ -1,4 +1,4 @@
-module fifo #(parameter Dsize = 8, depth = 8, parameter Asize = 4)(
+module fifo #(parameter Dsize = 8, parameter Asize = 4)(
     input wclk, wen, 
     input rclk, ren, 
     input wrst, rrst, 
@@ -6,6 +6,8 @@ module fifo #(parameter Dsize = 8, depth = 8, parameter Asize = 4)(
     output [Dsize-1:0] data_out,
     output full, empty
 );
+
+    paramter depth = 1 << (Asize-1);
     wire wen_wptr2mem, ren_rptr2mem;
     wire [Asize-1:0] b_wadd, b_radd;
     wire [Asize : 0] g_wptr, g_wptr_sync;
